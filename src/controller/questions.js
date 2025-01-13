@@ -1,21 +1,30 @@
+import { v4 as uuidv4 } from "uuid";
 import Question from "../models/Questions.js";
 
 const createQuestion = async (req, res) => {
-  const { question_text } = req.body;
-  const user_id = req.user.id;
-
-  if (!question_text) {
-    return res.status(400).json({ error: "Question text is required!" });
-  }
-
   try {
-    const newQuestion = new Question({ question_text, user_id });
+    const { question_text } = req.body;
+    const user_id = req.user.id;
+
+    if (!question_text) {
+      return res.status(400).json({ error: "Question text is required!" });
+    }
+
+    const newQuestion = new Question({
+      id: uuidv4(),
+      date: new Date(),
+      question_text,
+      user_id,
+    });
+
     await newQuestion.save();
+
     res.status(201).json({
       message: "Question created successfully.",
       question: newQuestion,
     });
   } catch (error) {
+    console.error("Error creating question:", error);
     res.status(500).json({ error: "Failed to create question." });
   }
 };

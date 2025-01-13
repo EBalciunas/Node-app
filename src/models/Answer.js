@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const answerSchema = new mongoose.Schema({
+  id: { type: String, required: true },
   answer_text: { type: String, required: true },
   date: { type: Date, default: Date.now },
   gained_likes_number: { type: Number, default: 0 },

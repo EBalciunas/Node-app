@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 
 const Auth = (req, res, next) => {
   const token = req.headers.authorization;
-
   if (!token) {
     return res.status(401).json({ message: "bad auth." });
   }
@@ -12,8 +11,10 @@ const Auth = (req, res, next) => {
       return res.status(401).json({ message: "bad auth." });
     }
 
-    req.body.userEmail = decoded.email;
-    req.body.userId = decoded.id;
+    req.user = {
+      email: decoded.email,
+      id: decoded.id,
+    };
 
     next();
   });
