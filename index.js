@@ -13,7 +13,7 @@ app.use(express.json());
 
 mongoose
   .connect(process.env.MONGO_CONNECTION)
-  .then(() => console.log("Connected!"))
+  .then(() => console.log("Successfully connected!"))
   .catch((err) => {
     console.log(err);
   });
@@ -22,7 +22,7 @@ app.use(userRouter);
 app.use(questionRoutes);
 
 app.use((req, res) => {
-  res.status(404).json({ response: "your endpoint not exist!" });
+  res.status(404).json({ response: "Your endpoint not exist!" });
 });
 
 app.listen(process.env.PORT, () => {

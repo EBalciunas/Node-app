@@ -20,4 +20,6 @@ const validateQuestion = (req, res, next) => {
   next();
 };
 
+router.post("/question", authenticate, validateQuestion, createQuestion);
+
 export { validateQuestion };

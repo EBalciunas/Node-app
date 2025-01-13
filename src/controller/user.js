@@ -33,7 +33,7 @@ export const login = async (req, res) => {
     const user = await UserModel.findOne({ email: req.body.email });
 
     if (!user) {
-      return res.status(401).json({ message: "You have provided bad data" });
+      return res.status(401).json({ message: "You have provided a bad data." });
     }
 
     const isPasswordsMatch = bcrypt.compareSync(
@@ -42,7 +42,7 @@ export const login = async (req, res) => {
     );
 
     if (!isPasswordsMatch) {
-      return res.status(401).json({ message: "You have provided bad data" });
+      return res.status(401).json({ message: "You have provided a bad data." });
     }
 
     const token = jwt.sign(
@@ -54,6 +54,6 @@ export const login = async (req, res) => {
     return res.status(200).json({ message: "successfull login", token: token });
   } catch (err) {
     console.log(err);
-    return res(500).json({ message: "We have some problems" });
+    return res(500).json({ message: "We have some problems." });
   }
 };

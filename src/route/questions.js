@@ -26,7 +26,7 @@ router.get("/questions/filter", async (req, res) => {
     const questions = await Question.find(query);
     res.status(200).json(questions);
   } catch (error) {
-    res.status(500).json({ error: "Failed to filter questions" });
+    res.status(500).json({ error: "Failed to filter questions." });
   }
 });
 
