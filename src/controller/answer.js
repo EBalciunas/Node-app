@@ -1,19 +1,69 @@
 import Answer from "../models/Answer.js";
+import Question from "../models/Questions.js";
+
+const answerQuestion = async (req, res) => {
+  try {
+    const questionId = req.params.id;
+    const question = await Question.findById(questionId);
+
+    if (!question) {
+      return res.status(404).json({ error: "Question not found." });
+    }
+
+    const newAnswer = new Answer({
+      answer_text: req.body.answer_text,
+      question_id: questionId,
+      user: req.user.id,
+    });
+
+    await newAnswer.save();
+
+    question.answers += 1;
+    await question.save();
+
+    res
+      .status(201)
+      .json({ message: "Answer submitted successfully.", answer: newAnswer });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to submit answer.", details: error.message });
+  }
+};
 
 const likeAnswer = async (req, res) => {
   try {
-    const answer = await Answer.findById(req.params.id);
+    const answerId = req.params.id;
+
+    const answer = await Answer.findById(answerId);
+
     if (!answer) {
-      return res.status(404).json({ error: "Answer not found." });
+      return res
+        .status(404)
+        .json({ error: `Answer with ID ${answerId} not found.` });
     }
 
-    if (!answer.likes.includes(req.user.id)) {
-      answer.likes.push(req.user.id);
-      await answer.save();
-      res.status(200).json({ message: "Answer liked." });
+    const userId = req.user.id;
+
+    if (answer.likes.includes(userId)) {
+      answer.likes = answer.likes.filter((id) => id !== userId);
+      answer.gained_likes_number -= 1;
     } else {
-      res.status(400).json({ error: "You already liked this answer." });
+      answer.dislikes = answer.dislikes.filter((id) => id !== userId);
+
+      answer.likes.push(userId);
+      answer.gained_likes_number += 1;
     }
+
+    await answer.save();
+
+    res.status(200).json({
+      message: answer.likes.includes(userId)
+        ? "Answer liked."
+        : "Like removed.",
+      likes: answer.likes.length,
+      dislikes: answer.dislikes.length,
+    });
   } catch (error) {
     res
       .status(500)
@@ -28,13 +78,25 @@ const dislikeAnswer = async (req, res) => {
       return res.status(404).json({ error: "Answer not found." });
     }
 
-    if (!answer.dislikes.includes(req.user.id)) {
-      answer.dislikes.push(req.user.id);
-      await answer.save();
-      res.status(200).json({ message: "Answer disliked." });
+    const userId = req.user.id;
+
+    if (answer.dislikes.includes(userId)) {
+      answer.dislikes = answer.dislikes.filter((id) => id !== userId);
     } else {
-      res.status(400).json({ error: "You already disliked this answer." });
+      answer.likes = answer.likes.filter((id) => id !== userId);
+
+      answer.dislikes.push(userId);
     }
+
+    await answer.save();
+
+    res.status(200).json({
+      message: answer.dislikes.includes(userId)
+        ? "Answer disliked."
+        : "Dislike removed.",
+      likes: answer.likes.length,
+      dislikes: answer.dislikes.length,
+    });
   } catch (error) {
     res
       .status(500)
@@ -61,4 +123,41 @@ const getAnswerLikes = async (req, res) => {
   }
 };
 
-export { likeAnswer, dislikeAnswer, getAnswerLikes };
+const deleteAnswer = async (req, res) => {
+  try {
+    const answerId = req.params.id;
+
+    const answer = await Answer.findById(answerId);
+    if (!answer) {
+      return res.status(404).json({ error: "Answer not found." });
+    }
+
+    if (answer.user !== req.user.id) {
+      return res
+        .status(403)
+        .json({ error: "You are not authorized to delete this answer." });
+    }
+
+    const question = await Question.findById(answer.question_id);
+    if (question) {
+      question.answers -= 1;
+      await question.save();
+    }
+
+    await answer.deleteOne();
+
+    res.status(200).json({ message: "Answer deleted successfully." });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to delete answer.", details: error.message });
+  }
+};
+
+export {
+  answerQuestion,
+  likeAnswer,
+  dislikeAnswer,
+  getAnswerLikes,
+  deleteAnswer,
+};

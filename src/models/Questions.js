@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 
 const questionSchema = new mongoose.Schema(
   {
-    id: { type: String, required: true },
+    _id: { type: String, default: uuidv4 },
     date: { type: Date, required: true },
     question_text: {
       type: String,
