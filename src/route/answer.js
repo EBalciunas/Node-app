@@ -8,8 +8,8 @@ import authenticate from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/answer/:id/like", authenticate, likeAnswer);
-router.post("/answer/:id/dislike", authenticate, dislikeAnswer);
-router.get("/answer/:id/likes", getAnswerLikes);
+router.post("/:id/like", authenticate, likeAnswer);
+router.post("/:id/dislike", authenticate, dislikeAnswer);
+router.get("/:id/likes", getAnswerLikes);
 
 export default router;

@@ -4,7 +4,7 @@ const likeAnswer = async (req, res) => {
   try {
     const answer = await Answer.findById(req.params.id);
     if (!answer) {
-      return res.status(404).json({ error: "Answer was not found." });
+      return res.status(404).json({ error: "Answer not found." });
     }
 
     if (!answer.likes.includes(req.user.id)) {
@@ -15,7 +15,9 @@ const likeAnswer = async (req, res) => {
       res.status(400).json({ error: "You already liked this answer." });
     }
   } catch (error) {
-    res.status(500).json({ error: "Failed to like answer." });
+    res
+      .status(500)
+      .json({ error: "Failed to like answer.", details: error.message });
   }
 };
 
@@ -23,7 +25,7 @@ const dislikeAnswer = async (req, res) => {
   try {
     const answer = await Answer.findById(req.params.id);
     if (!answer) {
-      return res.status(404).json({ error: "Answer wasnot found." });
+      return res.status(404).json({ error: "Answer not found." });
     }
 
     if (!answer.dislikes.includes(req.user.id)) {
@@ -34,7 +36,9 @@ const dislikeAnswer = async (req, res) => {
       res.status(400).json({ error: "You already disliked this answer." });
     }
   } catch (error) {
-    res.status(500).json({ error: "Failed to dislike answer." });
+    res
+      .status(500)
+      .json({ error: "Failed to dislike answer.", details: error.message });
   }
 };
 
@@ -42,15 +46,18 @@ const getAnswerLikes = async (req, res) => {
   try {
     const answer = await Answer.findById(req.params.id);
     if (!answer) {
-      return res.status(404).json({ error: "Answer was not found." });
+      return res.status(404).json({ error: "Answer not found." });
     }
 
-    const likesCount = answer.likes.length;
-    const dislikesCount = answer.dislikes.length;
-
-    res.status(200).json({ likes: likesCount, dislikes: dislikesCount });
+    res.status(200).json({
+      likes: answer.likes.length,
+      dislikes: answer.dislikes.length,
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch likes/dislikes count." });
+    res.status(500).json({
+      error: "Failed to fetch likes/dislikes count.",
+      details: error.message,
+    });
   }
 };
 
